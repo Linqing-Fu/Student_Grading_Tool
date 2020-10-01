@@ -1,5 +1,6 @@
-import sys
+import csv
 import re
+import sys
 
 def parse_args():
     '''Parse arguments and excute operations according to the option.
@@ -38,7 +39,7 @@ def read_csv(filename):
     '''
     rows = []
     try:
-        with open(filename) as csvfile:
+        with open(filename, 'r') as csvfile:
             csv_reader = csv.reader(csvfile)
             for row in csv_reader:
                 rows.append(row)
@@ -47,10 +48,12 @@ def read_csv(filename):
         print('Cannot read file from %s' % filename)
         sys.exit(2)
 
+
 def print_records(rows):
-    print('Matching Results of Student Records:\n')
+    print('Matching Results of Student Records:')
     for row in rows:
-        print('%s\t%s\t%s\t%s\n' % (row[0], row[1], row[2], row[3]))
+        print('%s\t%s\t%s\t%s' % (row[0], row[1], row[2], row[3]))
+
 
 def match_name(pattern, rows):
     """Match the name with pattern and print the matching records.
@@ -64,12 +67,13 @@ def match_name(pattern, rows):
     matching = []
     for row in rows:
         # Use regex matching to check whether first name or last name contains the pattern
-        if re.search(r'%s' % pattern, row[0]) != None or re.search(r'%s' % pattern, row[1]]) != None:
+        if re.search(r'%s' % pattern.lower(), row[0].lower()) != None or re.search(r'%s' % pattern.lower(), row[1].lower()) != None:
             matching.append(row)
-    
+
     # print the matched records
     print_records(matching)
-    
+
+
 def match_email(pattern, rows):
     """Match the email with pattern and print the matching records.
 
@@ -82,9 +86,9 @@ def match_email(pattern, rows):
     matching = []
     for row in rows:
         # Use regex matching to check whether email contains the pattern
-        if re.search(r'%s' % pattern, row[2]) != None:
+        if re.search(r'%s' % pattern.lower(), row[2].lower()) != None:
             matching.append(row)
-    
+
     # print the matched records
     print_records(matching)
 
@@ -93,7 +97,7 @@ def match_gpa(pattern, rows):
     """Match the gpa with pattern and print the matching records.
 
     Args:
-        pattern: A string of a decimal, may have + or - at the end
+        pattern: A string of a float number, may have + or - at the end
         rows: A list of records
 
     Returns: None
@@ -106,8 +110,8 @@ def match_gpa(pattern, rows):
     try:
         line = float(pattern)
     except:
+        print('Error: cannot recognize number: %s' % pattern)
         sys.exit(2)
-    
 
     matching = []
     for row in rows:
@@ -120,12 +124,13 @@ def match_gpa(pattern, rows):
     # print the matched records
     print_records(matching)
 
-if __name__ == "__main__":
-	option, pattern, filename = parse_args()
 
+if __name__ == "__main__":
+    option, pattern, filename = parse_args()
     help_info = """
-        Usage: tool [-help][-name <pattern> <path>][-email <pattern> <path>][-gpa <pattern> <path>]
+    Usage: tool [-help][-name <pattern> <path>][-email <pattern> <path>][-gpa <pattern> <path>]
     """
+
     if option in ('-help', '-h'):
         print(help_info)
     else:
