@@ -1,5 +1,5 @@
 import sys
-
+import re
 
 def parse_args():
     '''Parse arguments and excute operations according to the option.
@@ -47,28 +47,46 @@ def read_csv(filename):
         print('Cannot read file from %s' % filename)
         sys.exit(2)
 
+def print_records(rows):
+    print('Matching Results of Student Records:\n')
+    for row in rows:
+        print('%s\t%s\t%s\t%s\n' % (row[0], row[1], row[2], row[3]))
 
 def match_name(pattern, rows):
     """Match the name with pattern and print the matching records.
 
     Args:
-        pattern: A string
+        pattern: A regular expression string
         rows: A list of records
 
     Returns: None
     """
-
-
+    matching = []
+    for row in rows:
+        # Use regex matching to check whether first name or last name contains the pattern
+        if re.search(r'%s' % pattern, row[0]) != None or re.search(r'%s' % pattern, row[1]]) != None:
+            matching.append(row)
+    
+    # print the matched records
+    print_records(matching)
+    
 def match_email(pattern, rows):
     """Match the email with pattern and print the matching records.
 
     Args:
-        pattern: A string
+        pattern: A regular expression string
         rows: A list of records
 
     Returns: None
-
     """
+    matching = []
+    for row in rows:
+        # Use regex matching to check whether email contains the pattern
+        if re.search(r'%s' % pattern, row[2]) != None:
+            matching.append(row)
+    
+    # print the matched records
+    print_records(matching)
 
 
 def match_gpa(pattern, rows):
@@ -80,7 +98,27 @@ def match_gpa(pattern, rows):
 
     Returns: None
     """
+    exp = '='
+    if pattern[-1] == '+' or pattern[-1] == '-':
+        exp = pattern[-1]
+        pattern = pattern[0:len(pattern)-1]
 
+    try:
+        line = float(pattern)
+    except:
+        sys.exit(2)
+    
+
+    matching = []
+    for row in rows:
+        gpa = float(row[3])
+        if exp == '+' and gpa >= line or exp == '-' and gpa <= line or exp == '=' and gpa == line:
+            matching.append(row)
+        else:
+            continue
+
+    # print the matched records
+    print_records(matching)
 
 if __name__ == "__main__":
 	option, pattern, filename = parse_args()
